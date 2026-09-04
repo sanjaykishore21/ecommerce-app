@@ -1,7 +1,16 @@
 // API Service Layer for E-Commerce Web Application
-// Reads VITE_API_BASE_URL in production or defaults to '/api'
+// Automatically cleans and normalizes API URLs to prevent 405 / 404 routing errors
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+let rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').trim();
+// Strip any trailing slashes
+rawBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+
+// If the URL is an external domain (e.g. https://xyz.onrender.com) and doesn't end with /api, append /api
+if (rawBaseUrl.startsWith('http') && !rawBaseUrl.endsWith('/api')) {
+  rawBaseUrl = `${rawBaseUrl}/api`;
+}
+
+const API_BASE_URL = rawBaseUrl;
 
 // Helper to make fetch requests with auth headers and robust response parsing
 async function request(endpoint, options = {}) {
@@ -13,7 +22,9 @@ async function request(endpoint, options = {}) {
   };
 
   try {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${API_BASE_URL}${cleanEndpoint}`;
+    
     const response = await fetch(url, {
       ...options,
       headers,
@@ -23,14 +34,14 @@ async function request(endpoint, options = {}) {
       return null;
     }
 
-    // Check if response is JSON (prevents 'Unexpected end of JSON input' if Vercel returns index.html)
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      if (!response.ok) {
-        throw new Error(`Server returned HTTP ${response.status}: Please verify backend API URL configuration.`);
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      if (response.status === 405) {
+        throw new Error("HTTP 405 Method Not Allowed: Please ensure VITE_API_BASE_URL in Vercel points to your Render backend (e.g. https://your-backend.onrender.com/api)");
       }
-      // If Vercel returned index.html because VITE_API_BASE_URL was not set
-      throw new Error("Cannot connect to backend server. Please verify VITE_API_BASE_URL in Vercel settings.");
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}: Failed to reach backend API`);
+      }
     }
 
     const data = await response.json();
