@@ -3,7 +3,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-// Helper to make fetch requests with auth headers
+// Helper to make fetch requests with auth headers and robust response parsing
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token');
   const headers = {
@@ -13,13 +13,24 @@ async function request(endpoint, options = {}) {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
       ...options,
       headers,
     });
 
     if (response.status === 204) {
       return null;
+    }
+
+    // Check if response is JSON (prevents 'Unexpected end of JSON input' if Vercel returns index.html)
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}: Please verify backend API URL configuration.`);
+      }
+      // If Vercel returned index.html because VITE_API_BASE_URL was not set
+      throw new Error("Cannot connect to backend server. Please verify VITE_API_BASE_URL in Vercel settings.");
     }
 
     const data = await response.json();
@@ -31,7 +42,7 @@ async function request(endpoint, options = {}) {
 
     return data.data !== undefined ? data.data : data;
   } catch (err) {
-    console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, err);
+    console.error(`[API Error] ${options.method || 'GET'} ${endpoint}:`, err);
     throw err;
   }
 }
