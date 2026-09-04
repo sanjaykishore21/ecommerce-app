@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURORA | Modern E-Commerce Store</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- React & Lucide icons via CDN for 0-install instant preview -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Design tokens */
+    :root {
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-main: #0b0f19;
+      --bg-card: #111827;
+      --bg-subtle: #1f2937;
+      --bg-input: #151d2f;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    h1, h2, h3, h4 { font-family: var(--font-heading); color: #fff; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+    /* Navbar */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11, 15, 25, 0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 72px; display: flex; align-items: center;
+    }
+    .navbar-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .brand-logo { font-size: 1.5rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-link { color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-badge-admin { background: #ec4899; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border-radius: var(--radius-md); padding: 10px 20px; cursor: pointer; border: none; font-size: 0.95rem; transition: 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5); }
+    .btn-secondary { background: var(--bg-subtle); color: #fff; border: 1px solid var(--border-subtle); }
+    .btn-secondary:hover { background: #283548; }
+    .btn-sm { padding: 6px 14px; font-size: 0.85rem; border-radius: 8px; }
+
+    /* Hero */
+    .hero-banner {
+      border-radius: var(--radius-lg); padding: 48px 40px; margin: 32px 0;
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+    .hero-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #818cf8; font-size: 0.82rem; font-weight: 600; margin-bottom: 16px; }
+    .hero-title { font-size: 2.6rem; margin-bottom: 12px; }
+    .hero-subtitle { color: var(--text-secondary); font-size: 1.1rem; max-width: 550px; }
+
+    /* Filters */
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .category-pills { display: flex; gap: 10px; overflow-x: auto; }
+    .category-pill { padding: 8px 18px; border-radius: var(--radius-full); background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 0.88rem; transition: 0.2s; white-space: nowrap; }
+    .category-pill.active, .category-pill:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .search-input { background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; padding: 10px 16px; border-radius: var(--radius-md); outline: none; width: 280px; }
+
+    /* Grid */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 26px; }
+    .product-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; transition: 0.25s; }
+    .product-card:hover { transform: translateY(-4px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); }
+    .product-img { width: 100%; height: 230px; object-fit: cover; background: #1a2234; }
+    .product-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+    .product-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #818cf8; text-transform: uppercase; margin-bottom: 6px; }
+    .product-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+    .product-desc { color: var(--text-secondary); font-size: 0.86rem; margin-bottom: 16px; height: 2.6em; overflow: hidden; }
+    .product-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px; }
+    .product-price { font-size: 1.35rem; font-weight: 800; color: #fff; }
+
+    /* Badges */
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-shipped { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .status-delivered { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .stock-badge { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+    .in-stock { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .low-stock { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .out-stock { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    /* Modals & Drawers */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); max-width: 600px; width: 100%; padding: 28px; }
+    .cart-drawer { position: fixed; top: 0; right: 0; width: 100%; max-width: 420px; height: 100%; background: var(--bg-card); border-left: 1px solid var(--border-subtle); z-index: 210; padding: 24px; display: flex; flex-direction: column; }
+    .toast-msg { position: fixed; bottom: 24px; right: 24px; background: #1e293b; border-left: 4px solid #10b981; padding: 14px 20px; border-radius: 8px; z-index: 300; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .table-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow-x: auto; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 0.9rem; }
+    th { background: rgba(15, 23, 42, 0.7); color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const API_BASE = 'http://localhost:8080/api';
+
+    // Mock catalog fallback for offline / instant view
+    const initialMockProducts = [
+      { id: 1, name: 'Sony WH-1000XM5 Wireless Headphones', price: 349.99, stock: 25, category: 'Electronics', imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80', description: 'Industry-leading noise canceling with crystal-clear sound.' },
+      { id: 2, name: 'Apple Watch Series 9 GPS 45mm', price: 399.00, stock: 18, category: 'Wearables', imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&auto=format&fit=crop&q=80', description: 'Advanced fitness and health sensors with always-on retina display.' },
+      { id: 3, name: 'Mechanical Gaming Keyboard RGB', price: 129.50, stock: 40, category: 'Gaming', imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80', description: 'Tactile mechanical switches with per-key RGB backlighting.' },
+      { id: 4, name: 'Minimalist Leather Backpack', price: 89.99, stock: 15, category: 'Accessories', imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80', description: 'Water-resistant full-grain leather with dedicated laptop sleeve.' },
+      { id: 5, name: 'Smart 4K Action Camera', price: 219.00, stock: 12, category: 'Electronics', imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&auto=format&fit=crop&q=80', description: 'Captures smooth 4K 60fps video with dual touchscreens.' },
+      { id: 6, name: 'Ergonomic Desk Chair Pro', price: 279.99, stock: 8, category: 'Furniture', imageUrl: 'https://images.unsplash.com/photo-1580481077195-7387295d23f7?w=600&auto=format&fit=crop&q=80', description: 'Breathable mesh with 3D armrests and lumbar support.' }
+    ];
+
+    function App() {
+      const [view, setView] = useState('shop');
+      const [products, setProducts] = useState(initialMockProducts);
+      const [cart, setCart] = useState([]);
+      const [user, setUser] = useState(null);
+      const [token, setToken] = useState(localStorage.getItem('token') || null);
+      const [selectedCategory, setSelectedCategory] = useState('All');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [orders, setOrders] = useState([]);
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [toast, setToast] = useState('');
+      const [apiOnline, setApiOnline] = useState(false);
+
+      const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(''), 3500);
+      };
+
+      // Check backend connection & load products
+      const loadProducts = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/products`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && json.data.length > 0) {
+              setProducts(json.data);
+              setApiOnline(true);
+              return;
+            }
+          }
+        } catch (e) {
+          // Backend offline, fallback to mock data
+          setApiOnline(false);
+        }
+      };
+
+      useEffect(() => {
+        loadProducts();
+      }, []);
+
+      const login = (email, role, name) => {
+        const fakeUser = { email, role, fullName: name };
+        setUser(fakeUser);
+        showToast(`Logged in as ${name} (${role === 'ROLE_ADMIN' ? 'Admin' : 'User'})`);
+        setView('shop');
+      };
+
+      const addToCart = (product) => {
+        setCart(prev => {
+          const exist = prev.find(item => item.id === product.id);
+          if (exist) {
+            return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+          }
+          return [...prev, { ...product, quantity: 1 }];
+        });
+        showToast(`Added "${product.name}" to cart!`);
+      };
+
+      const updateCartQty = (id, delta) => {
+        setCart(prev => prev.map(item => {
+          if (item.id === id) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        }).filter(Boolean));
+      };
+
+      const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+      const handleCheckout = (address, phone) => {
+        if (!user) {
+          setView('login');
+          setIsCartOpen(false);
+          showToast('Please sign in to place an order');
+          return;
+        }
+
+        const newOrder = {
+          id: Math.floor(1000 + Math.random() * 9000),
+          recipientName: user.fullName,
+          phone: phone || '+1 (555) 019-2834',
+          shippingAddress: address || '123 Main Street, New York, NY',
+          items: [...cart],
+          totalAmount: cartTotal,
+          status: 'PENDING',
+          createdAt: new Date().toISOString()
+        };
+
+        setOrders([newOrder, ...orders]);
+        setCart([]);
+        setIsCartOpen(false);
+        setView('orders');
+        showToast(`Order #${newOrder.id} placed successfully!`);
+      };
+
+      // Filtered products
+      const filtered = products.filter(p => {
+        const matchesCat = selectedCategory === 'All' || p.category.toLowerCase() === selectedCategory.toLowerCase();
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCat && matchesSearch;
+      });
+
+      return (
+        <div>
+          {/* Navbar */}
+          <header className="navbar">
+            <div className="container navbar-inner">
+              <div className="brand-logo" onClick={() => setView('shop')}>
+                <div className="brand-icon">🛍️</div>
+                <span>AURORA</span>
+              </div>
+
+              <ul className="nav-links">
+                <li className={`nav-link ${view === 'shop' ? 'active' : ''}`} onClick={() => setView('shop')}>Shop</li>
+                {user && <li className={`nav-link ${view === 'orders' ? 'active' : ''}`} onClick={() => setView('orders')}>My Orders</li>}
+                {user?.role === 'ROLE_ADMIN' && <li className={`nav-link ${view === 'admin' ? 'active' : ''}`} onClick={() => setView('admin')}>Admin Panel <span className="nav-badge-admin">ADMIN</span></li>}
+              </ul>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => setIsCartOpen(true)} style={{ position: 'relative' }}>
+                  🛒 Cart ({cartCount})
+                </button>
+
+                {user ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{user.fullName}</span>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setUser(null); showToast('Logged out'); }}>Logout</button>
+                  </div>
+                ) : (
+                  <button className="btn btn-primary btn-sm" onClick={() => setView('login')}>Sign In</button>
+                )}
+              </div>
+            </div>
+          </header>
+
+          <main className="container" style={{ paddingBottom: 60 }}>
+            {/* View 1: Shop */}
+            {view === 'shop' && (
+              <div>
+                <section className="hero-banner">
+                  <span className="hero-pill">✨ Spring 2026 Collection</span>
+                  <h1 className="hero-title">Elevate Your Lifestyle Essentials</h1>
+                  <p className="hero-subtitle">Curated premium electronics, gaming gear, fashion accessories, and home goods.</p>
+                </section>
+
+                <div className="filter-bar">
+                  <div className="category-pills">
+                    {['All', 'Electronics', 'Wearables', 'Gaming', 'Accessories', 'Furniture'].map(cat => (
+                      <button key={cat} className={`category-pill ${selectedCategory === cat ? 'active' : ''}`} onClick={() => setSelectedCategory(cat)}>
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="🔍 Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                <div className="products-grid">
+                  {filtered.map(p => (
+                    <div key={p.id} className="product-card">
+                      <img src={p.imageUrl} alt={p.name} className="product-img" />
+                      <div className="product-body">
+                        <span className="product-tag">{p.category}</span>
+                        <h3 className="product-title">{p.name}</h3>
+                        <p className="product-desc">{p.description}</p>
+                        <div className="product-footer">
+                          <span className="product-price">${Number(p.price).toFixed(2)}</span>
+                          <button className="btn btn-primary btn-sm" onClick={() => addToCart(p)}>+ Add to Cart</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* View 2: Login */}
+            {view === 'login' && (
+              <div style={{ maxWidth: 460, margin: '60px auto', background: 'var(--bg-card)', padding: 36, borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
+                <h2 style={{ textAlign: 'center', marginBottom: 8 }}>Sign In</h2>
+                <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: 24, fontSize: '0.9rem' }}>Choose an account to test full-stack features</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <button className="btn btn-primary" onClick={() => login('admin@ecommerce.com', 'ROLE_ADMIN', 'Admin User')}>
+                    ⚡ 1-Click Login: Store Admin
+                  </button>
+                  <button className="btn btn-secondary" onClick={() => login('user@ecommerce.com', 'ROLE_USER', 'John Doe')}>
+                    ⚡ 1-Click Login: Customer (User)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* View 3: Orders */}
+            {view === 'orders' && (
+              <div style={{ maxWidth: 860, margin: '40px auto' }}>
+                <h2 style={{ marginBottom: 20 }}>My Orders &amp; Live Tracking</h2>
+                {orders.length === 0 ? (
+                  <div style={{ padding: 40, textAlign: 'center', background: 'var(--bg-card)', borderRadius: 12 }}>
+                    <p style={{ color: 'var(--text-secondary)' }}>No orders placed yet. Add products to cart and checkout!</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {orders.map(o => (
+                      <div key={o.id} style={{ background: 'var(--bg-card)', padding: 24, borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+                          <div>
+                            <strong>Order #{o.id}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(o.createdAt).toLocaleString()}</div>
+                          </div>
+                          <span className={`status-pill status-${o.status.toLowerCase()}`}>{o.status}</span>
+                        </div>
+                        <div style={{ padding: '10px 0', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+                          {o.items.map(item => (
+                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', margin: '4px 0' }}>
+                              <span>{item.name} &times; {item.quantity}</span>
+                              <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontWeight: 700 }}>
+                          <span>Total:</span>
+                          <span style={{ color: '#818cf8', fontSize: '1.1rem' }}>${o.totalAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* View 4: Admin */}
+            {view === 'admin' && (
+              <div style={{ margin: '40px auto' }}>
+                <h2>Admin Management Dashboard</h2>
+                <div className="table-box">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map(p => (
+                        <tr key={p.id}>
+                          <td>#{p.id}</td>
+                          <td><strong>{p.name}</strong></td>
+                          <td>{p.category}</td>
+                          <td>${Number(p.price).toFixed(2)}</td>
+                          <td><span className="stock-badge in-stock">{p.stock} units</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Cart Drawer */}
+          {isCartOpen && (
+            <div className="cart-drawer">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <h3>Shopping Cart ({cartCount})</h3>
+                <button className="btn btn-secondary btn-sm" onClick={() => setIsCartOpen(false)}>✕</button>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {cart.length === 0 ? (
+                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: 40 }}>Your cart is empty.</p>
+                ) : (
+                  cart.map(item => (
+                    <div key={item.id} style={{ background: 'var(--bg-main)', padding: 12, borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.name}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>${item.price} each</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: '2px 8px' }} onClick={() => updateCartQty(item.id, -1)}>-</button>
+                        <span>{item.quantity}</span>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: '2px 8px' }} onClick={() => updateCartQty(item.id, 1)}>+</button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {cart.length > 0 && (
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontWeight: 700, fontSize: '1.1rem' }}>
+                    <span>Total:</span>
+                    <span style={{ color: '#818cf8' }}>${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => handleCheckout()}>
+                    Place Order (${cartTotal.toFixed(2)})
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {toast && <div className="toast-msg">{toast}</div>}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

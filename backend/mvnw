@@ -1,0 +1,15 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Start Up Batch script for Unix
+# ----------------------------------------------------------------------------
+DIRNAME="$(dirname "$0")"
+WRAPPER_JAR="$DIRNAME/.mvn/wrapper/maven-wrapper.jar"
+WRAPPER_PROP="$DIRNAME/.mvn/wrapper/maven-wrapper.properties"
+
+if [ ! -f "$WRAPPER_JAR" ]; then
+    DOWNLOAD_URL="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar"
+    mkdir -p "$DIRNAME/.mvn/wrapper"
+    curl -o "$WRAPPER_JAR" "$DOWNLOAD_URL"
+fi
+
+exec java -jar "$WRAPPER_JAR" "--wrapper-properties" "$WRAPPER_PROP" "$@"

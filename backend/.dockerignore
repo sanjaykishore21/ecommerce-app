@@ -1,0 +1,11 @@
+target/
+.mvn/apache-maven-*
+*.jar
+.git
+.gitignore
+.idea
+*.iml
+.classpath
+.project
+.settings
+start.bat
