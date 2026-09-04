@@ -1,6 +1,7 @@
 // API Service Layer for E-Commerce Web Application
+// Reads VITE_API_BASE_URL in production or defaults to '/api'
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Helper to make fetch requests with auth headers
 async function request(endpoint, options = {}) {
@@ -16,6 +17,10 @@ async function request(endpoint, options = {}) {
       ...options,
       headers,
     });
+
+    if (response.status === 204) {
+      return null;
+    }
 
     const data = await response.json();
 
