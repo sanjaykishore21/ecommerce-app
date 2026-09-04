@@ -172,5 +172,5 @@ Frontend runs on: **`http://localhost:5173`**
 
 ---
 
-## 📄 License
-This project is licensed under the MIT License.
+## website link
+(https://frontend-m7xm7hgpb-sanjaykishore228-7818s-projects.vercel.app/)
