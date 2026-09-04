@@ -48,14 +48,12 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 Database (Optional for in-memory fallback/testing) -->
+        <!-- H2 Database for seamless zero-config in-memory operation -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <!-- JWT Dependencies -->
